@@ -42,7 +42,19 @@ color-mix(in oklab, var(--color-primary) 2%, transparent);
 color-mix(in oklab, var(--color-primary) 5%, transparent);
 }
 
-
+.bg-primary\/10 {
+  background-color: 
+color-mix(in oklab, var(--color-primary) 10%, transparent);
+}
+.shadow-primary\/15 {
+  --tw-shadow-color: 
+color-mix(in oklab, 
+color-mix(in oklab, var(--color-primary) 15%, transparent) var(--tw-shadow-alpha), transparent);
+}
+.border-primary\/30 {
+  border-color: 
+color-mix(in oklab, var(--color-primary) 30%, transparent);
+}
 
 .rich-text { font-size: 15px;  }
 
