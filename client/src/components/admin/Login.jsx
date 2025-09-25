@@ -1,20 +1,27 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../context/AppContext.jsx";
+import toast from "react-hot-toast";
 
 const Login = () => {
+  const { axios, setToken, navigate } = useAppContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // ✅ Fake authentication check
-    if (email === "admin@example.com" && password === "admin123") {
-      localStorage.setItem("isAuthenticated", "true"); // save login state
-      navigate("/admin"); // redirect to dashboard
-    } else {
-      alert("Invalid credentials. Try admin@example.com / admin123");
+    try {
+      const { data } = await axios.post("/api/admin/login", { email, password });
+      if (data.success) {
+        setToken(data.token);
+        localStorage.setItem("token", data.token);
+        axios.defaults.headers.common["Authorization"] = data.token;
+        toast.success("Login successful");
+        navigate("/admin"); // redirect to admin layout/dashboard
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 

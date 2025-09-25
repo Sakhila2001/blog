@@ -1,19 +1,132 @@
+// import React from "react";
+// import { assets } from "../../assets/assets";
+// import { useAppContext } from "../../context/AppContext";
+// import toast from "react-hot-toast";
+
+// const BlogTableItem = ({ blog, fetchBlogs, index }) => {
+//   const { title, createdAt } = blog;
+//   const BlogDate = new Date(createdAt);
+
+// const {axios} = useAppContext();
+// const deleteBlog = async () => {
+//   const confirm = window.confirm("Are you sure you want to delete this blog?");
+//   if(!confirm) return;
+//   try {
+
+//     const {data} = await axios.post(`/api/blog/delete`,{id: blog._id});
+//     if(data.success){
+//      toast.success(data.message);
+//      await fetchBlogs();
+//     }else{
+//       toast.error(data.message);
+//     }
+//   } catch (error) {
+//     toast.error(error.message);
+//   }
+
+// }
+
+// const togglePublish =async() =>{
+//  try {
+//   const {data} = await axios.post('/api/blog/toggle-publish', {id: blog._id});
+//   if(data.success){
+//     toast.success(data.message);
+//     await fetchBlogs();
+//   }else{
+//     toast.error(data.message);
+//   }
+
+//  } catch (error) {
+//   toast.error(error.message);
+
+//  }
+// }
+//   return (
+//     <tr className="border-y border-gray-300">
+//       <th className="px-2 py-4">{index}</th>
+//       <td className="px-2 py-4">{title}</td>
+//       <td className="px-2 py-4 max-sm:hidden">{BlogDate.toDateString()}</td>
+//       <td className="px-2 py-4 max-sm:hidden">
+//         <p
+//           // className={
+//           //   blog.isPublished ? "text-green-600" : "text-orange-600"
+//           // }
+//           className={`${
+//             blog.isPublished ? "text-green-600" : "text-orange-600"
+//           }`}
+//         >
+//           {blog.isPublished ? "Published" : "Unpublished"}
+//         </p>
+//       </td>
+//       <td className="px-2 py-4 flex text-xs gap-3">
+//         <button
+//           onClick={togglePublish}
+//           className="border px-2 py-0.5 mt-1 rounded cursor-pointer"
+//         >
+//           {blog.isPublished ? "Unpublish" : "Publish"}
+//         </button>
+//         <img
+//           onClick={deleteBlog}
+//           className="w-8 hover:scale-110 transition-all cursor-pointer"
+//           alt="delete"
+//           src={assets.cross_icon}
+//         />
+//       </td>
+//     </tr>
+//   );
+// };
+
+// export default BlogTableItem;
+
 import React from "react";
 import { assets } from "../../assets/assets";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const BlogTableItem = ({ blog, fetchBlogs, index }) => {
   const { title, createdAt } = blog;
   const BlogDate = new Date(createdAt);
+  const { axios } = useAppContext();
+  const navigate = useNavigate();
 
-  const handleTogglePublish = () => {
-    console.log(`Toggling publish for blog: ${blog._id}`);
-    fetchBlogs(); 
+  const deleteBlog = async () => {
+    const confirm = window.confirm(
+      "Are you sure you want to delete this blog?"
+    );
+    if (!confirm) return;
+
+    try {
+      const { data } = await axios.post("/api/blog/delete", { id: blog._id });
+      if (data.success) {
+        toast.success(data.message);
+        await fetchBlogs();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
-  const handleDelete = () => {
-    // TODO: API call to delete blog
-    console.log(`Deleting blog: ${blog._id}`);
-    fetchBlogs(); // refresh after delete
+  const togglePublish = async () => {
+    try {
+      const { data } = await axios.post("/api/blog/toggle-publish", {
+        id: blog._id,
+      });
+      if (data.success) {
+        toast.success(data.message);
+        await fetchBlogs();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const editBlog = () => {
+    navigate(`/admin/edit-blog/${blog._id}`);
   };
 
   return (
@@ -23,22 +136,30 @@ const BlogTableItem = ({ blog, fetchBlogs, index }) => {
       <td className="px-2 py-4 max-sm:hidden">{BlogDate.toDateString()}</td>
       <td className="px-2 py-4 max-sm:hidden">
         <p
-          className={
+          className={`${
             blog.isPublished ? "text-green-600" : "text-orange-600"
-          }
+          }`}
         >
           {blog.isPublished ? "Published" : "Unpublished"}
         </p>
       </td>
-      <td className="px-2 py-4 flex text-xs gap-3">
+      <td className="px-2 py-4 flex text-xs gap-2">
         <button
-          onClick={handleTogglePublish}
-          className="border px-2 py-0.5 mt-1 rounded cursor-pointer"
+          onClick={togglePublish}
+          className="border px-2 py-0.5 mt-1 rounded cursor-pointer hover:bg-gray-100 transition"
         >
           {blog.isPublished ? "Unpublish" : "Publish"}
         </button>
+
+        {/* <button
+          onClick={editBlog}
+          className="border px-2 py-0.5 mt-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+        >
+          Edit
+        </button> */}
+
         <img
-          onClick={handleDelete}
+          onClick={deleteBlog}
           className="w-8 hover:scale-110 transition-all cursor-pointer"
           alt="delete"
           src={assets.cross_icon}
