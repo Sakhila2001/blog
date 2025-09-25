@@ -125,9 +125,9 @@ const BlogTableItem = ({ blog, fetchBlogs, index }) => {
     }
   };
 
-  const editBlog = () => {
-    navigate(`/admin/edit-blog/${blog._id}`);
-  };
+  // const editBlog = () => {
+  //   navigate(`/admin/edit-blog/${blog._id}`);
+  // };
 
   return (
     <tr className="border-y border-gray-300">

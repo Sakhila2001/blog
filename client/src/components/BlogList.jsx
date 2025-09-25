@@ -1,25 +1,24 @@
 import React, { useState } from "react";
-import { blog_data, blogCategories } from "../assets/assets";
-import { motion } from "framer-motion"; // ✅ correct import
+import {  blogCategories } from "../assets/assets";
 import BlogCard from "./BlogCard.jsx";
 import { useAppContext } from "../context/AppContext.jsx";
-
 
 const BlogList = () => {
   const [menu, setMenu] = useState("All");
   const { blogs, input } = useAppContext();
 
   const filteredBlogs = () => {
-    if (input === "") {
-      return blogs;
+    let filtered = blogs.filter((blog) => blog.isPublished); 
+
+    if (input !== "") {
+      filtered = filtered.filter(
+        (blog) =>
+          blog.title.toLowerCase().includes(input.toLowerCase()) ||
+          blog.category.toLowerCase().includes(input.toLowerCase())
+      );
     }
-    return blogs.filter(
-      (blog) =>
-        blog.title.toLowerCase().includes(input.toLowerCase()) ||
-        blog.category
-          .toLowerCase()
-          .includes(input.toLowerCase(input.toLowerCase()))
-    );
+
+    return filtered;
   };
 
   return (
