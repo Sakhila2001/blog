@@ -1,21 +1,49 @@
 import React from "react";
 import { assets } from "../../assets/assets";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const CommentTableItem = ({ comment, fetchComments }) => {
   const { blog, createdAt, _id } = comment;
   const BlogDate = new Date(createdAt);
 
-  const handleApprove = async () => {
-    // TODO: API call to approve comment
-    console.log("Approved:", _id);
-    fetchComments(); // refresh list
-  };
 
-  const handleDelete = async () => {
-    // TODO: API call to delete comment
-    console.log("Deleted:", _id);
-    fetchComments(); // refresh list
-  };
+const {axios} = useAppContext();
+
+const approveComment = async () => {
+  try {
+    const { data } = await axios.post(`/api/admin/approve-comment`, {
+      id: _id,
+    });
+    if (data.success) {
+      toast.success(data.message);
+      await fetchComments();
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
+
+
+const deleteComment = async () => {
+  try {
+    const confirm = window.confirm("Are you sure you want to delete this comment?");
+    if(!confirm) return;
+    const { data } = await axios.post(`/api/admin/approve-comment`, {
+      id: _id,
+    });
+    if (data.success) {
+      toast.success(data.message);
+      await fetchComments();
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
 
   return (
     <tr className="border-y border-gray-300">
@@ -27,7 +55,7 @@ const CommentTableItem = ({ comment, fetchComments }) => {
         <b className="font-medium text-gray-600">Comment</b>: {comment.content}
       </td>
 
-      <td className="px-6 py-4 max-sm:hidden">{BlogDate.toDateString()}</td>
+      <td className="px-6 py-4 max-sm:hidden">{BlogDate.toLocaleDateString()}</td>
 
       <td className="px-6 py-4">
         <div>
@@ -36,7 +64,7 @@ const CommentTableItem = ({ comment, fetchComments }) => {
               src={assets.tick_icon}
               alt="approve"
               className="w-5 hover:scale-110 transition-all cursor-pointer"
-              onClick={handleApprove}
+              onClick={approveComment}
             />
           ) : (
             <p className="text-xs border border-green-600 bg-green-100 text-green-600 rounded-full px-3 py-1">
@@ -48,7 +76,7 @@ const CommentTableItem = ({ comment, fetchComments }) => {
             src={assets.bin_icon}
             alt="delete"
             className="w-5 mt-2 hover:scale-110 transition-all cursor-pointer"
-            onClick={handleDelete}
+            onClick={deleteComment}
           />
         </div>
       </td>
