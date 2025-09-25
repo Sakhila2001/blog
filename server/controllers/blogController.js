@@ -1,6 +1,6 @@
 import imagekit, { toFile } from "../configs/imageKit.js";
-import Blog from "../models/Blog.js"; 
-import Comment from "../models/Comment.js"; 
+import Blog from "../models/Blog.js";
+import Comment from "../models/Comment.js";
 import main from "../configs/gemini.js";
 
 // Add a new blog
@@ -47,7 +47,11 @@ export const addBlog = async (req, res) => {
     const optimizedImageUrl = imagekit.helper.buildSrc({
       urlEndpoint: "https://ik.imagekit.io/greatstackSakhila",
       src: uploaded.filePath,
-      transformation: [{ quality: "auto" }, { format: "webp" }, { width: 1280 }],
+      transformation: [
+        { quality: "auto" },
+        { format: "webp" },
+        { width: 1280 },
+      ],
     });
 
     const newBlog = await Blog.create({
@@ -73,9 +77,33 @@ export const addBlog = async (req, res) => {
 };
 
 // Dashboard data
+// export const getDashboardData = async (req, res) => {
+//   try {
+//     const blogs = await Blog.find();
+//     const comments = await Comment.find();
+//     const drafts = await Blog.find({ isPublished: false });
+
+//     res.json({
+//       success: true,
+//       dashboard: {
+//         blogs: blogs.length,
+//         comments: comments.length,
+//         drafts: drafts.length,
+//         recentBlogs: blogs.slice(0, 10),
+//       },
+//     });
+//   } catch (error) {
+//     res.json({ success: false, message: error.message });
+//   }
+// };
+
 export const getDashboardData = async (req, res) => {
   try {
-    const blogs = await Blog.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const blogs = await Blog.find().sort({ createdAt: -1 }); // Sort newest first
     const comments = await Comment.find();
     const drafts = await Blog.find({ isPublished: false });
 
@@ -85,7 +113,7 @@ export const getDashboardData = async (req, res) => {
         blogs: blogs.length,
         comments: comments.length,
         drafts: drafts.length,
-        recentBlogs: blogs.slice(0, 5),
+        recentBlogs: blogs.slice(skip, skip + limit), // Paginate blogs
       },
     });
   } catch (error) {
@@ -190,7 +218,9 @@ export const generateContent = async (req, res) => {
   try {
     const { prompt } = req.body;
     if (!prompt) {
-      return res.status(400).json({ success: false, message: "Prompt is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Prompt is required" });
     }
 
     const raw = await main(
@@ -200,7 +230,9 @@ export const generateContent = async (req, res) => {
     res.json({ success: true, content: raw });
   } catch (error) {
     console.error("Error generating content:", error);
-    res.status(500).json({ success: false, message: "Failed to generate content" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to generate content" });
   }
 };
 export const editBlog = async (req, res) => {
@@ -208,7 +240,9 @@ export const editBlog = async (req, res) => {
     const { blogId } = req.params;
     const existingBlog = await Blog.findById(blogId);
     if (!existingBlog)
-      return res.status(404).json({ success: false, message: "Blog not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Blog not found" });
 
     let blogData;
     try {
@@ -229,7 +263,11 @@ export const editBlog = async (req, res) => {
       const optimizedImageUrl = imagekit.helper.buildSrc({
         urlEndpoint: "https://ik.imagekit.io/greatstackSakhila",
         src: uploaded.filePath,
-        transformation: [{ quality: "auto" }, { format: "webp" }, { width: 1280 }],
+        transformation: [
+          { quality: "auto" },
+          { format: "webp" },
+          { width: 1280 },
+        ],
       });
 
       existingBlog.image = optimizedImageUrl;
@@ -243,9 +281,15 @@ export const editBlog = async (req, res) => {
 
     await existingBlog.save();
 
-    res.json({ success: true, message: "Blog updated successfully", blog: existingBlog });
+    res.json({
+      success: true,
+      message: "Blog updated successfully",
+      blog: existingBlog,
+    });
   } catch (error) {
     console.error("Error updating blog:", error);
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
