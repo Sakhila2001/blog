@@ -6,20 +6,7 @@ import { useAppContext } from "../../context/AppContext.jsx";
 import axios from "axios";
 
 const Layout = () => {
-  // const navigate = useNavigate();
-
-  // const { setToken } = useAppContext(); // get setToken from context
-
-  // const logout = () => {
-  //   // Clear token from context and localStorage
-  //   setToken(null);
-  //   localStorage.removeItem("token");
-  //   // Remove default axios header if you are using axios
-  //   axios.defaults.headers.common["Authorization"] = null;
-
-  //   navigate("/"); // redirect to home/login
-  // };
-
+ 
   const {axios, setToken, navigate} = useAppContext();
   const logout = ()=>{
     localStorage.removeItem('token');
