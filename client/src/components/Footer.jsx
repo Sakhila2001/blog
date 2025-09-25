@@ -10,8 +10,8 @@ const Footer = () => {
         <div>
           <img src={assets.logo} alt="logo" className="w-32 sm:w-44" />
           <p className="max-w-[410px] mt-6">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Rerum unde
-            quaerat eveniet cumque accusamus atque qui error quo enim fugiat?
+          Sakhila’s Blog shares insights on technology, startups, and ideas that inspire 
+          learning and growth.
           </p>
         </div>
 
