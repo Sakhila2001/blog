@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import {  blogCategories } from "../assets/assets";
+import { blog_data, blogCategories } from "../assets/assets";
+import { motion } from "framer-motion";
 import BlogCard from "./BlogCard.jsx";
 import { useAppContext } from "../context/AppContext.jsx";
 
@@ -8,7 +9,7 @@ const BlogList = () => {
   const { blogs, input } = useAppContext();
 
   const filteredBlogs = () => {
-    let filtered = blogs.filter((blog) => blog.isPublished); 
+    let filtered = blogs.filter((blog) => blog.isPublished);
 
     if (input !== "") {
       filtered = filtered.filter(
