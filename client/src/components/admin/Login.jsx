@@ -1,20 +1,27 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../context/AppContext.jsx";
+import toast from "react-hot-toast";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const { axios, setToken, navigate } = useAppContext();
+  const [email, setEmail] = useState("admin@example.com"); // pre-filled for convenience
+  const [password, setPassword] = useState("greatstack");  // pre-filled for convenience
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // ✅ Fake authentication check
-    if (email === "admin@example.com" && password === "admin123") {
-      localStorage.setItem("isAuthenticated", "true"); // save login state
-      navigate("/admin"); // redirect to dashboard
-    } else {
-      alert("Invalid credentials. Try admin@example.com / admin123");
+    try {
+      const { data } = await axios.post("/api/admin/login", { email, password });
+      if (data.success) {
+        setToken(data.token);
+        localStorage.setItem("token", data.token);
+        axios.defaults.headers.common["Authorization"] = data.token;
+        toast.success("Login successful");
+        navigate("/admin"); // redirect to admin dashboard
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
@@ -30,32 +37,32 @@ const Login = () => {
               Enter your credentials to access the admin panel
             </p>
           </div>
-          <form
-            onSubmit={handleSubmit}
-            className="mt-6 w-full sm:max-w-md text-gray-600"
-          >
-            <div className="flex flex-col">
-              <label>Email</label>
+
+          <form onSubmit={handleSubmit} className="mt-6 w-full sm:max-w-md text-gray-600">
+            <div className="flex flex-col mb-6">
+              <label className="mb-1">Email</label>
               <input
+                type="email"
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="your email id"
-                className="border-b-2 border-gray-300 p-2 outline-none mb-6"
-                type="email"
-                value={email}
+                className="border-b-2 border-gray-300 p-2 outline-none"
               />
             </div>
-            <div className="flex flex-col">
-              <label>Password</label>
+
+            <div className="flex flex-col mb-6">
+              <label className="mb-1">Password</label>
               <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="your password"
-                className="border-b-2 border-gray-300 p-2 outline-none mb-6"
-                type="password"
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
+                className="border-b-2 border-gray-300 p-2 outline-none"
               />
             </div>
+
             <button
               type="submit"
               className="w-full py-3 font-medium bg-primary text-white rounded cursor-pointer hover:bg-primary/90 transition-all"
