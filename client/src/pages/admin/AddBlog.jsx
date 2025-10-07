@@ -7,7 +7,8 @@ import toast from "react-hot-toast";
 const AddBlog = () => {
   const { axios } = useAppContext();
   const [isAdding, setIsAdding] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const editorRef = useRef(null);
   const quillRef = useRef(null);
@@ -19,45 +20,46 @@ const AddBlog = () => {
   const [isPublished, setIsPublished] = useState(false);
 
   // Generate content from AI
-  const generateContent = async () => {
-    if (!title) return toast.error("Title is required");
-    try {
-      setLoading(true);
-  
-      const { data } = await axios.post("/api/blog/generate-content", {
-        prompt: title,
-      });
-  
-      if (data.content) {
-        let cleanContent = data.content;
-  
-        // Remove markdown code blocks
-        cleanContent = cleanContent.replace(/```html|```/g, "").trim();
-  
-        // Remove <html>, <head>, <body>, <style> and their content
-        cleanContent = cleanContent
-          .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, "")
-          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-          .replace(/<\/?html[^>]*>/gi, "")
-          .replace(/<\/?body[^>]*>/gi, "");
-  
-        // Set content in Quill editor
-        quillRef.current.setContents([]);
-        quillRef.current.clipboard.dangerouslyPasteHTML(cleanContent);
-      } else {
-        toast.error(data.message || "Failed to generate content");
-      }
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
+  // const generateContent = async () => {
+  //   if (!title) return toast.error("Title is required");
+  //   try {
+  //     setLoading(true);
+
+  //     const { data } = await axios.post("/api/blog/generate-content", {
+  //       prompt: title,
+  //     });
+
+  //     if (data.content) {
+  //       let cleanContent = data.content;
+
+  //       // Remove markdown code blocks
+  //       cleanContent = cleanContent.replace(/```html|```/g, "").trim();
+
+  //       // Remove <html>, <head>, <body>, <style> and their content
+  //       cleanContent = cleanContent
+  //         .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, "")
+  //         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+  //         .replace(/<\/?html[^>]*>/gi, "")
+  //         .replace(/<\/?body[^>]*>/gi, "");
+
+  //       // Set content in Quill editor
+  //       quillRef.current.setContents([]);
+  //       quillRef.current.clipboard.dangerouslyPasteHTML(cleanContent);
+  //     } else {
+  //       toast.error(data.message || "Failed to generate content");
+  //     }
+  //   } catch (error) {
+  //     toast.error(error.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   // Handle form submit
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    if (!image) return toast.error("Please upload an image before adding the blog");
+    if (!image)
+      return toast.error("Please upload an image before adding the blog");
     try {
       setIsAdding(true);
 
@@ -125,7 +127,7 @@ const AddBlog = () => {
             type="file"
           />
         </label>
-  
+
         {/* Blog Title */}
         <p className="mt-6 font-semibold">Blog title</p>
         <input
@@ -136,7 +138,7 @@ const AddBlog = () => {
           className="w-full mt-2 p-3 border border-gray-300 outline-none rounded-lg text-lg"
           type="text"
         />
-  
+
         {/* Sub Title */}
         <p className="mt-6 font-semibold">Sub title</p>
         <input
@@ -147,29 +149,29 @@ const AddBlog = () => {
           className="w-full mt-2 p-3 border border-gray-300 outline-none rounded-lg text-lg"
           type="text"
         />
-  
+
         {/* Blog Description */}
         <p className="mt-6 font-semibold">Blog Description</p>
         <div className="relative mt-2 border border-gray-300 rounded-lg">
           <div ref={editorRef} className="min-h-[28rem] md:min-h-[36rem] p-2" />
-  
+
           {/* Loading overlay */}
           {loading && (
             <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
               <div className="w-10 h-10 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
             </div>
           )}
-  
-          <button
+
+          {/* <button
             disabled={loading}
             onClick={generateContent}
             type="button"
             className="absolute bottom-2 right-2 text-sm text-white bg-black/70 px-4 py-1.5 rounded hover:underline cursor-pointer"
           >
             {loading ? "Generating..." : "✨ Generate with AI"}
-          </button>
+          </button> */}
         </div>
-  
+
         {/* Blog Category */}
         <p className="mt-6 font-semibold">Blog category</p>
         <select
@@ -179,13 +181,15 @@ const AddBlog = () => {
           className="mt-2 w-full px-4 py-3 border text-gray-700 border-gray-300 outline-none rounded-lg text-lg"
         >
           <option value="">Select category</option>
-          {blogCategories.map((item, index) => (
-            <option key={index} value={item}>
-              {item}
-            </option>
-          ))}
+          {blogCategories
+            .filter((item) => item !== "All") // Exclude "All"
+            .map((item, index) => (
+              <option key={index} value={item}>
+                {item}
+              </option>
+            ))}
         </select>
-  
+
         {/* Publish Checkbox */}
         <div className="flex items-center gap-2 mt-6">
           <input
@@ -196,7 +200,7 @@ const AddBlog = () => {
           />
           <p className="font-semibold">Publish Now</p>
         </div>
-  
+
         {/* Submit Button */}
         <button
           disabled={isAdding}
